@@ -1,0 +1,24 @@
+{
+  "name": "grpc-example",
+  "version": "1.0.0",
+  "description": "example for grpc",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jiasm/grpc-example.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jiasm/grpc-example/issues"
+  },
+  "homepage": "https://github.com/Jiasm/grpc-example#readme",
+  "dependencies": {
+    "google-protobuf": "^4.0.0-rc.2",
+    "grpc": "^1.24.4"
+  }
+}
