@@ -25,20 +25,40 @@ const { InterceptingCall } = grpc;
 function main() {
   var target = 'localhost:50051';
   var interceptor = function(options, nextCall) {
-    console.log('trigger')
-    return new InterceptingCall(nextCall(options));
-  }
-  var interceptor1 = function(options, nextCall) {
-    console.log('trigger2')
-    const interceptor = nextCall(options)
-    // interceptor.sendMessage = (...arg) => console.log({ arg })
-    return new InterceptingCall(interceptor, { sendMessage (message, next) { console.log({message}); next(message) } });
-  }
+    return new InterceptingCall(nextCall(options), {
+      start: function(metadata, listener, next) {
+        next(metadata, {
+          onReceiveMetadata: function (metadata, next) {
+            console.log('call onReceiveMetadata', Date.now())
+            next(metadata);
+          },
+          onReceiveMessage: function (message, next) {
+            console.log('call onReceiveMessage', Date.now())
+            next(message);
+          },
+          onReceiveStatus: function (status, next) {
+            console.log('call onReceiveStatus', Date.now())
+            next(status);
+          },
+        });
+      },
+      sendMessage: function(message, next) {
+        console.log('call sendMessage', Date.now())
+        next(message);
+      },
+      halfClose: function(next) {
+        next();
+      },
+      cancel: function(message, next) {
+        next();
+      }
+    });
+  };
   var client = new services.GreeterClient(
     target,
     grpc.credentials.createInsecure(),
     {
-      interceptors: [interceptor, interceptor1]  
+      interceptors: [interceptor]  
     }
   );
   var request = new messages.HelloRequest();

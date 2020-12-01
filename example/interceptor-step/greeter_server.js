@@ -21,15 +21,27 @@ var services = require('../../helloworld_grpc_pb');
 
 var grpc = require('grpc');
 
+/**
+ * Implements the SayHello RPC method.
+ */
+function sayHello(call, callback) {
+  console.log('join callback', Date.now())
+  var reply = new messages.HelloReply();
+  reply.setMessage('Hello ' + call.request.getName());
+  callback(null, reply);
+}
+
+/**
+ * Starts an RPC server that receives requests for the Greeter service at the
+ * sample server port
+ */
 function main() {
-  var target = 'localhost:50051';
-  var client = new services.GreeterClient(target,
-                                          grpc.credentials.createInsecure());
-  var request = new messages.HelloRequest();
-  request.setName('world');
-  client.sayHello(request, function(err, response) {
-    console.log('Greeting:', response.getMessage());
+  var server = new grpc.Server();
+  server.addService(services.GreeterService, {sayHello: sayHello});
+  server.bindAsync('0.0.0.0:50051', grpc.ServerCredentials.createInsecure(), () => {
+    server.start();
   });
 }
 
 main();
+
